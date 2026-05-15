@@ -5,138 +5,198 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>NOVA-GS: Low-Light Novel View Synthesis</title>
   
+  <!-- Bring back the elegant fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  
   <style>
     :root {
+      /* Light Theme Variables */
       --bg: #ffffff;
-      --surface: #f8f9fa;
-      --border: #dddddd;
-      --text: #222222;
-      --text-muted: #555555;
-      --accent: #0056b3;
+      --surface: #f9fafb;
+      --surface2: #f3f4f6;
+      --border: #e5e7eb;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --accent: #3b82f6;
+      --accent2: #8b5cf6;
+      --accent3: #10b981;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     
     body {
-      background-color: var(--bg);
+      background: var(--bg);
       color: var(--text);
-      /* Using standard system fonts instead of custom web fonts */
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Instrument Sans', sans-serif;
       font-size: 16px;
-      line-height: 1.6;
-      padding-top: 60px; /* Space for fixed nav */
+      line-height: 1.7;
+      overflow-x: hidden;
+      padding-top: 70px;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 15% 40%, rgba(59, 130, 246, 0.04) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 15%, rgba(139, 92, 246, 0.03) 0%, transparent 50%);
     }
 
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
+    .container      { max-width: 900px;  margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+    .wide-container { max-width: 1100px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
 
-    .wide-container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
+    /* NAV */
     nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      background: var(--bg);
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 15px 32px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
     }
+    .nav-brand { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--accent); letter-spacing: 0.1em; font-weight: 500; }
+    .nav-links  { display: flex; gap: 28px; list-style: none; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 14px; transition: color 0.2s; font-weight: 500; }
+    .nav-links a:hover { color: var(--accent); }
 
-    .nav-brand { font-weight: bold; color: var(--text); }
-    .nav-links { display: flex; gap: 20px; list-style: none; }
-    .nav-links a { color: var(--text-muted); text-decoration: none; }
-    .nav-links a:hover { color: var(--accent); text-decoration: underline; }
-
-    header {
-      text-align: center;
-      padding: 60px 0 40px;
+    /* HERO */
+    header { padding: 100px 0 70px; text-align: center; position: relative; z-index: 1; }
+    .venue-badge {
+      display: inline-block;
+      background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2);
+      color: var(--accent); font-family: 'DM Mono', monospace;
+      font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+      padding: 6px 18px; border-radius: 100px; margin-bottom: 30px;
     }
-
-    .venue { color: var(--text-muted); font-size: 14px; margin-bottom: 10px; }
-    
     h1 {
-      font-size: 2.2rem;
-      line-height: 1.2;
-      margin-bottom: 15px;
-      color: #000;
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 4.5vw, 3.4rem);
+      line-height: 1.15; letter-spacing: -0.01em;
+      max-width: 800px; margin: 0 auto 16px; color: var(--text);
     }
-    
+    h1 em { font-style: italic; color: var(--accent); }
     .hero-sub {
-      font-size: 1.1rem;
-      color: var(--text-muted);
-      margin-bottom: 30px;
+      font-size: 1.1rem; color: var(--text-muted);
+      max-width: 600px; margin: 0 auto 40px;
     }
+    .authors {
+      display: flex; flex-wrap: wrap; gap: 6px 22px;
+      justify-content: center; margin-bottom: 8px;
+    }
+    .author { font-size: 16px; color: var(--text); font-weight: 500; }
+    .affiliation { font-size: 14px; color: var(--text-muted); margin-bottom: 40px; font-family: 'DM Mono', monospace; }
 
-    .authors { margin-bottom: 10px; }
-    .author { font-weight: 500; margin: 0 10px; display: inline-block; }
-    .affiliation { font-size: 14px; color: var(--text-muted); margin-bottom: 30px; }
-
-    .btn-row { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
     .btn {
-      padding: 10px 20px;
-      border-radius: 4px;
-      text-decoration: none;
-      font-weight: 500;
-      border: 1px solid var(--border);
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; border-radius: 8px;
+      font-size: 14.5px; font-weight: 500; text-decoration: none;
+      transition: all 0.2s; border: 1px solid transparent;
+      font-family: 'Instrument Sans', sans-serif;
     }
-    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn-primary:hover { background: #004494; }
-    .btn-outline { background: var(--surface); color: var(--text); }
-    .btn-outline:hover { background: #e9ecef; }
+    .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25); }
+    .btn-primary:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35); }
+    .btn-outline { background: var(--surface); border-color: var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--text-muted); background: var(--surface2); }
+    .btn svg { width: 18px; height: 18px; flex-shrink: 0; }
 
-    section { padding: 40px 0; border-top: 1px solid var(--border); }
-    h2 { font-size: 1.5rem; margin-bottom: 15px; color: #000; }
-    h3 { font-size: 1.1rem; margin-bottom: 5px; color: #000; }
-    p { margin-bottom: 15px; }
+    /* SECTIONS */
+    section { padding: 80px 0; border-top: 1px solid var(--border); }
+    .section-label {
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 12px; font-weight: 500;
+    }
+    h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      line-height: 1.2; margin-bottom: 20px; color: var(--text);
+    }
+    p { color: var(--text-muted); margin-bottom: 16px; }
+    p:last-child { margin-bottom: 0; }
 
+    /* ABSTRACT */
     .abstract-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 25px;
-      border-radius: 4px;
+      background: #ffffff; border: 1px solid var(--border);
+      border-radius: 16px; padding: 40px; position: relative; overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.02);
     }
+    .abstract-box::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+    .abstract-box p { font-size: 16px; line-height: 1.8; color: var(--text); margin: 0; }
 
+    /* CONTRIBUTIONS */
     .contrib-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px; margin-top: 36px;
+    }
+    .contrib-card {
+      background: #ffffff; border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.01);
+    }
+    .contrib-card:hover { border-color: rgba(59, 130, 246, 0.4); transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,0,0,0.04); }
+    .contrib-icon { font-size: 24px; margin-bottom: 12px; }
+    .contrib-card h3 { font-family: 'DM Serif Display', serif; font-size: 18px; margin-bottom: 8px; color: var(--text); }
+    .contrib-card p  { font-size: 14.5px; color: var(--text-muted); margin: 0; line-height: 1.6; }
+
+    /* PIPELINE */
+    .pipeline-figure {
+      margin-top: 30px; border-radius: 16px; overflow: hidden;
+      border: 1px solid var(--border); background: #ffffff;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+    .pipeline-figure img { width: 100%; height: auto; display: block; }
+    .pipeline-caption {
+      padding: 16px 24px; font-size: 14px; color: var(--text-muted);
+      border-top: 1px solid var(--border); line-height: 1.6;
+      background: var(--surface);
+    }
+
+    /* COMPARISON UI */
+    .comp-label-row { display: flex; justify-content: space-between; margin-bottom: 12px; margin-top: 24px; }
+    .comp-tag {
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      padding: 6px 14px; border-radius: 6px; letter-spacing: 0.05em; font-weight: 500;
+    }
+    .comp-tag.dark   { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+    .comp-tag.bright { background: rgba(59, 130, 246, 0.1); color: var(--accent); border: 1px solid rgba(59, 130, 246, 0.2); }
+
+    .sliders-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 16px;
     }
 
-    .figure-container { margin-top: 20px; text-align: center; }
-    .figure-container img { max-width: 100%; border: 1px solid var(--border); display: block; }
-    .figure-caption { font-size: 14px; color: var(--text-muted); margin-top: 10px; text-align: left; }
-
-    .scene-tabs { margin-bottom: 15px; }
-    .scene-tab {
-      padding: 5px 15px;
-      margin-right: 10px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      cursor: pointer;
-      border-radius: 4px;
+    @media (max-width: 768px) {
+      .sliders-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
     }
-    .scene-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-    .slider-wrapper { margin-top: 20px; }
-    .comp-labels { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-    
+    .slider-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* THE BULLETPROOF SLIDER */
     .slider-container {
       position: relative;
       width: 100%;
-      background: #f0f0f0;
+      background: var(--surface2);
       aspect-ratio: 16 / 9;
       border: 1px solid var(--border);
+      border-radius: 14px;
       overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.04);
     }
 
     .slider-img {
@@ -147,11 +207,11 @@
       pointer-events: none;
     }
 
-    #cs-before-img {
+    .before-img {
       clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
     }
 
-    /* The native range input overlaid for flawless mouse/touch dragging */
+    /* Native range input overlaid for flawless mouse/touch dragging */
     .slider-input {
       position: absolute;
       top: 0; left: 0;
@@ -167,10 +227,10 @@
       top: 0; bottom: 0;
       left: 50%;
       width: 3px;
-      background: #fff;
+      background: #ffffff;
       transform: translateX(-50%);
       pointer-events: none;
-      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
       z-index: 5;
     }
 
@@ -178,43 +238,65 @@
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      background: #fff;
+      background: #ffffff;
       color: #333;
-      width: 30px; height: 30px;
+      width: 36px; height: 36px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+    .slider-btn svg { width: 18px; height: 18px; }
+
+    .comp-hint {
+      text-align: center; font-size: 13px; color: var(--text-muted);
+      margin-top: 14px; font-family: 'DM Mono', monospace; letter-spacing: 0.04em;
     }
 
-    .table-container { overflow-x: auto; margin-top: 20px; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
+    /* RESULTS TABLE */
+    .results-scroll { overflow-x: auto; margin-top: 32px; border-radius: 12px; border: 1px solid var(--border); background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.02); }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th {
+      background: var(--surface); color: var(--text-muted);
+      font-family: 'DM Mono', monospace; font-size: 11.5px;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 14px 16px; text-align: left;
+      border-bottom: 2px solid var(--border);
     }
-    th, td {
-      border: 1px solid var(--border);
-      padding: 10px;
-      text-align: center;
+    th.center { text-align: center; }
+    td { padding: 12px 16px; border-top: 1px solid var(--border); color: var(--text-muted); }
+    tr.ours td { background: rgba(59, 130, 246, 0.05); color: var(--text); font-weight: 600; }
+    tr:hover td { background: var(--surface); }
+    
+    .best   { color: var(--accent3); font-weight: 700; }
+    .second { color: #f59e0b; font-weight: 600; }
+    .third  { color: #ef4444; font-weight: 500; }
+    .method-col { color: var(--text); min-width: 170px; font-weight: 500; }
+    .group-row td {
+      padding: 8px 16px; font-size: 11px; letter-spacing: 0.1em;
+      color: var(--accent); background: var(--surface2);
+      font-family: 'DM Mono', monospace; text-transform: uppercase; font-weight: 500;
     }
-    th { background: var(--surface); }
-    td.left-align { text-align: left; }
-    .best { font-weight: bold; color: #000; }
-    .second { text-decoration: underline; }
-    tr.ours { background: #f0f7ff; }
 
-    footer { text-align: center; padding: 30px 0; color: var(--text-muted); font-size: 14px; border-top: 1px solid var(--border); }
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0; text-align: center;
+      color: var(--text-muted); font-size: 14px;
+      background: var(--surface);
+    }
 
-    @media (max-width: 600px) {
+    @media (max-width: 620px) {
       .nav-links { display: none; }
-      h1 { font-size: 1.8rem; }
+      header { padding: 60px 0 40px; }
+      .abstract-box { padding: 24px 20px; }
     }
   </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav>
-  <div class="nav-brand">NOVA-GS</div>
+  <span class="nav-brand">NOVA-GS</span>
   <ul class="nav-links">
     <li><a href="#abstract">Abstract</a></li>
     <li><a href="#method">Method</a></li>
@@ -223,10 +305,11 @@
   </ul>
 </nav>
 
+<!-- HERO -->
 <header>
   <div class="container">
-    <div class="venue">IIT Madras · 2025</div>
-    <h1>NOVA-GS: Noise-Aware View-Consistent Gaussian Splatting for Low-Light Novel View Synthesis</h1>
+    <div class="venue-badge">IIT Madras · 2025</div>
+    <h1>NOVA-GS: <em>Noise-Aware</em> View-Consistent Gaussian Splatting for Low-Light Novel View Synthesis</h1>
     <p class="hero-sub">A unified framework that reconstructs and renders 3D scenes directly from extreme low-light images — no SfM, no clean references needed.</p>
 
     <div class="authors">
@@ -238,226 +321,247 @@
     <div class="affiliation">Indian Institute of Technology Madras</div>
 
     <div class="btn-row">
-      <a href="#" class="btn btn-primary">Paper (arXiv)</a>
-      <a href="#" class="btn btn-outline">Code (GitHub)</a>
+      <a href="#" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Paper (arXiv)
+      </a>
+      <a href="#" class="btn btn-outline" style="pointer-events: none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        Code (Coming Soon)
+      </a>
     </div>
   </div>
 </header>
 
+<!-- ABSTRACT -->
 <section id="abstract">
   <div class="container">
-    <h2>Abstract</h2>
+    <div class="section-label">Abstract</div>
+    <h2>Reconstructing the Unseen</h2>
     <div class="abstract-box">
-      <p>Reconstructing 3D scenes under real-world low-light conditions remains challenging due to severe sensor noise, low signal-to-noise ratios, and degraded photometric consistency, which destabilize geometry estimation and novel view synthesis. Existing approaches often rely on well-lit reference data for reliable Structure-from-Motion (SfM) initialization, or apply per-view enhancement methods that introduce cross-view inconsistencies. We propose <strong>NOVA-GS</strong>, a unified noise-aware framework for low-light 3D Gaussian Splatting that subsumes enhancement, denoising, and geometry optimization within a single process.</p>
-      <p style="margin-bottom: 0;">Our method leverages VGGT-based feed-forward estimation to obtain robust camera poses and geometry directly from degraded inputs, eliminating the need for SfM. We further introduce noise-guided spherical harmonic regularization to suppress view-dependent artifacts in noisy regions. Extensive experiments on diverse real-world low-light datasets demonstrate improved geometric fidelity, color consistency, and robustness without requiring paired supervision or well-lit references.</p>
+      <p>Reconstructing 3D scenes under real-world low-light conditions remains challenging due to severe sensor noise, low signal-to-noise ratios, and degraded photometric consistency, which destabilize geometry estimation and novel view synthesis. Existing approaches often rely on well-lit reference data for reliable Structure-from-Motion (SfM) initialization, or apply per-view enhancement methods that introduce cross-view inconsistencies.</p><br>
+      <p>We propose <strong>NOVA-GS</strong>, a unified noise-aware framework for low-light 3D Gaussian Splatting that subsumes enhancement, denoising, and geometry optimization within a single process. Our method leverages VGGT-based feed-forward estimation to obtain robust camera poses and geometry directly from degraded inputs, eliminating the need for SfM. We further introduce noise-guided spherical harmonic regularization to suppress view-dependent artifacts in noisy regions. Extensive experiments on diverse real-world low-light datasets demonstrate improved geometric fidelity, color consistency, and robustness without requiring paired supervision or well-lit references.</p>
     </div>
   </div>
 </section>
 
+<!-- CONTRIBUTIONS -->
 <section id="contributions">
   <div class="container">
-    <h2>Key Contributions</h2>
+    <div class="section-label">Key Contributions</div>
+    <h2>What makes NOVA-GS different</h2>
     <div class="contrib-grid">
-      <div>
+      <div class="contrib-card">
+        <div class="contrib-icon">🌑</div>
         <h3>SfM-Free Initialization</h3>
         <p>Leverages VGGT feed-forward geometry estimation directly on degraded low-light inputs. No COLMAP, no well-lit references required.</p>
       </div>
-      <div>
-        <h3>Targeted Denoising</h3>
+      <div class="contrib-card">
+        <div class="contrib-icon">🔬</div>
+        <h3>Targeted Blind-Spot Denoising</h3>
         <p>Laplacian-guided masking focuses denoising effort on high-frequency, noise-prone regions via a Deep Attention-ResUNet.</p>
       </div>
-      <div>
+      <div class="contrib-card">
+        <div class="contrib-icon">🌐</div>
         <h3>Cross-View Consistency</h3>
         <p>Depth-guided reprojection with confidence-aware photometric loss enforces global geometric coherence across all input views.</p>
       </div>
-      <div>
-        <h3>SH Regularization</h3>
+      <div class="contrib-card">
+        <div class="contrib-icon">✦</div>
+        <h3>Noise-Guided SH Regularization</h3>
         <p>Maps 2D noise estimates to 3D Gaussians, penalizing higher-order spherical harmonics in noisy regions to eliminate floaters.</p>
       </div>
     </div>
   </div>
 </section>
 
+<!-- PIPELINE -->
 <section id="method">
   <div class="container">
-    <h2>Method Overview</h2>
+    <div class="section-label">Method</div>
+    <h2>Pipeline Overview</h2>
     <p>NOVA-GS processes low-light inputs concurrently through three coupled stages — structure-aware enhancement, self-supervised denoising, and consistency-aware 3DGS optimization — all jointly trained end-to-end.</p>
-    <div class="figure-container">
-      <img src="images/pipeline.jpeg" alt="NOVA-GS pipeline overview" onerror="this.onerror=null; this.src='https://placehold.co/900x400/eeeeee/333333?text=images/pipeline.jpeg';">
-      <p class="figure-caption"><strong>Figure 1:</strong> Overview of the NOVA-GS unified optimization framework. Given low-light inputs, the pipeline concurrently performs structure-aware enhancement, self-supervised denoising, and consistency-aware 3D Gaussian Splatting optimization.</p>
+
+    <div class="pipeline-figure">
+      <img
+        src="images/pipeline.jpeg"
+        alt="NOVA-GS pipeline overview"
+        onerror="this.onerror=null; this.src='https://placehold.co/900x400/eeeeee/666666?text=images/pipeline.jpeg';"
+      >
+      <div class="pipeline-caption">
+        <strong>Fig. 1</strong> &mdash; Overview of the NOVA-GS unified optimization framework. Given low-light inputs, the pipeline concurrently performs structure-aware enhancement, self-supervised denoising, and consistency-aware 3D Gaussian Splatting optimization constrained by geometric and noise-guided spherical harmonic losses.
+      </div>
     </div>
   </div>
 </section>
 
+<!-- COMPARISON SLIDER -->
 <section id="comparison">
-  <div class="container">
-    <h2>Visual Results Comparison</h2>
-    <p>Drag the slider to compare dark input images against NOVA-GS reconstructed novel views.</p>
+  <div class="wide-container">
+    <div class="section-label" style="text-align: center;">Visual Results</div>
+    <h2 style="text-align: center;">Novel View Synthesis</h2>
+    <p style="text-align: center;">Drag the handles to compare the dark input images against the NOVA-GS reconstructed novel views.</p>
 
-    <div class="scene-tabs" id="sceneTabs"></div>
+    <div class="comp-label-row">
+      <span class="comp-tag dark">&#9664; Low-Light Input</span>
+      <span class="comp-tag bright">NOVA-GS Output &#9654;</span>
+    </div>
 
-    <div class="slider-wrapper">
-      <div class="comp-labels">
-        <span>Low-Light Input</span>
-        <span>NOVA-GS Output</span>
-      </div>
-      <div class="slider-container">
-        <!-- Back image is the bright/output image -->
-        <img id="cs-after-img" src="" alt="NOVA-GS output" class="slider-img" onerror="this.onerror=null; this.src='https://placehold.co/900x500/cccccc/333333?text=NOVA-GS+Output';">
-        <!-- Front image is the dark/input image, which gets clipped -->
-        <img id="cs-before-img" src="" alt="Dark input" class="slider-img" onerror="this.onerror=null; this.src='https://placehold.co/900x500/333333/cccccc?text=Low-Light+Input';">
-        
-        <div class="slider-line" id="slider-line">
-          <div class="slider-btn">↔</div>
+    <div class="sliders-grid">
+      <!-- First Scene Slider -->
+      <div class="slider-wrapper">
+        <div class="slider-container">
+          <img src="images/still3_ours.png" class="slider-img" alt="NOVA-GS output" onerror="this.onerror=null; this.src='https://placehold.co/900x500/e2e8f0/64748b?text=NOVA-GS+Output';">
+          <img src="images/still3_dark.png" class="slider-img before-img" alt="Dark input" onerror="this.onerror=null; this.src='https://placehold.co/900x500/1e293b/94a3b8?text=Low-Light+Input';">
+          <div class="slider-line">
+            <div class="slider-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6" transform="translate(-2,0)"/>
+                <polyline points="9 18 15 12 9 6" transform="translate(2,0)"/>
+              </svg>
+            </div>
+          </div>
+          <input type="range" min="0" max="100" value="50" class="slider-input">
         </div>
-        
-        <!-- Native input range handles dragging on mobile/desktop perfectly -->
-        <input type="range" min="0" max="100" value="50" id="slider-input" class="slider-input">
+        <p class="comp-hint">&#8592; drag to compare &#8594;</p>
+      </div>
+
+      <!-- Second Scene Slider -->
+      <div class="slider-wrapper">
+        <div class="slider-container">
+          <img src="images/chairraw_ours.jpg" class="slider-img" alt="NOVA-GS output" onerror="this.onerror=null; this.src='https://placehold.co/900x500/e2e8f0/64748b?text=NOVA-GS+Output';">
+          <img src="images/chairraw_dark.jpg" class="slider-img before-img" alt="Dark input" onerror="this.onerror=null; this.src='https://placehold.co/900x500/1e293b/94a3b8?text=Low-Light+Input';">
+          <div class="slider-line">
+            <div class="slider-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 18 9 12 15 6" transform="translate(-2,0)"/>
+                <polyline points="9 18 15 12 9 6" transform="translate(2,0)"/>
+              </svg>
+            </div>
+          </div>
+          <input type="range" min="0" max="100" value="50" class="slider-input">
+        </div>
+        <p class="comp-hint">&#8592; drag to compare &#8594;</p>
       </div>
     </div>
   </div>
 </section>
 
+<!-- QUANTITATIVE -->
 <section id="quant">
   <div class="wide-container">
-    <h2>Quantitative Evaluation</h2>
+    <div class="section-label">Quantitative Evaluation</div>
+    <h2>Results on Low-Light Benchmarks</h2>
     <p>NOVA-GS achieves best performance on LLNeRF (+1.58 dB over the next best) and consistently competitive results across all datasets, without using ground-truth supervision for any stage.</p>
 
-    <div class="table-container">
+    <div class="results-scroll">
       <table>
         <thead>
           <tr>
-            <th rowspan="2" class="left-align">Method</th>
-            <th colspan="3">LOM</th>
-            <th colspan="3">LLRS</th>
-            <th colspan="3">LLNeRF</th>
+            <th rowspan="2" style="vertical-align:bottom; min-width:170px">Method</th>
+            <th colspan="3" class="center" style="border-left:1px solid var(--border);">LOM</th>
+            <th colspan="3" class="center" style="border-left:1px solid var(--border);">LLRS</th>
+            <th colspan="3" class="center" style="border-left:1px solid var(--border);">LLNeRF</th>
           </tr>
           <tr>
-            <th>PSNR↑</th><th>SSIM↑</th><th>LPIPS↓</th>
-            <th>PSNR↑</th><th>SSIM↑</th><th>LPIPS↓</th>
-            <th>PSNR↑</th><th>SSIM↑</th><th>LPIPS↓</th>
+            <th style="border-left:1px solid var(--border)">PSNR&#8593;</th><th>SSIM&#8593;</th><th>LPIPS&#8595;</th>
+            <th style="border-left:1px solid var(--border)">PSNR&#8593;</th><th>SSIM&#8593;</th><th>LPIPS&#8595;</th>
+            <th style="border-left:1px solid var(--border)">PSNR&#8593;</th><th>SSIM&#8593;</th><th>LPIPS&#8595;</th>
           </tr>
         </thead>
         <tbody>
+          <tr class="group-row"><td colspan="10">2D Enhancement + GS</td></tr>
           <tr>
-            <td class="left-align">MBLLEN + GS</td>
+            <td class="method-col">MBLLEN + GS</td>
             <td>15.08</td><td>0.7008</td><td>0.3458</td>
             <td>15.36</td><td>0.3958</td><td>0.6608</td>
             <td>18.09</td><td>0.7011</td><td>0.3656</td>
           </tr>
           <tr>
-            <td class="left-align">URetinex-Net + GS</td>
-            <td class="second">20.29</td><td>0.8249</td><td>0.2991</td>
+            <td class="method-col">URetinex-Net + GS</td>
+            <td><span class="second">20.29</span></td><td>0.8249</td><td>0.2991</td>
             <td>15.10</td><td>0.4012</td><td>0.6670</td>
-            <td>20.08</td><td class="second">0.8679</td><td>0.3946</td>
+            <td>20.08</td><td><span class="second">0.8679</span></td><td>0.3946</td>
           </tr>
+          <tr class="group-row"><td colspan="10">NeRF-Based Methods</td></tr>
           <tr>
-            <td class="left-align">Aleth-NeRF †</td>
+            <td class="method-col">Aleth-NeRF †</td>
             <td>19.56</td><td>0.7822</td><td>0.3113</td>
             <td>12.65</td><td>0.4054</td><td>0.8985</td>
             <td>16.02</td><td>0.7558</td><td>0.6574</td>
           </tr>
           <tr>
-            <td class="left-align">LLNeRF</td>
+            <td class="method-col">LLNeRF</td>
             <td>17.60</td><td>0.7497</td><td>0.3654</td>
             <td>14.93</td><td>0.3446</td><td>0.7292</td>
-            <td>18.82</td><td>0.8597</td><td class="second">0.3377</td>
+            <td>18.82</td><td>0.8597</td><td><span class="second">0.3377</span></td>
           </tr>
           <tr>
-            <td class="left-align">I2-NeRF †</td>
-            <td class="best">22.40</td><td class="second">0.7877</td><td class="second">0.2789</td>
-            <td class="second">15.37</td><td>0.3763</td><td class="second">0.6493</td>
-            <td class="second">21.91</td><td>0.6048</td><td>0.6463</td>
+            <td class="method-col">I2-NeRF †</td>
+            <td><span class="best">22.40</span></td><td><span class="second">0.7877</span></td><td><span class="second">0.2789</span></td>
+            <td><span class="second">15.37</span></td><td>0.3763</td><td><span class="second">0.6493</span></td>
+            <td><span class="second">21.91</span></td><td>0.6048</td><td>0.6463</td>
           </tr>
+          <tr class="group-row"><td colspan="10">3D Gaussian Splatting Methods</td></tr>
           <tr>
-            <td class="left-align">Luminance-GS †</td>
+            <td class="method-col">Luminance-GS †</td>
             <td>17.98</td><td>0.7893</td><td>0.3110</td>
             <td>9.78</td><td>0.3334</td><td>0.7953</td>
             <td>12.49</td><td>0.2178</td><td>0.5291</td>
           </tr>
           <tr>
-            <td class="left-align">LITA-GS</td>
-            <td>19.99</td><td class="best">0.7988</td><td>0.3058</td>
-            <td>14.87</td><td class="best">0.4381</td><td>0.7234</td>
+            <td class="method-col">LITA-GS</td>
+            <td>19.99</td><td><span class="best">0.7988</span></td><td>0.3058</td>
+            <td>14.87</td><td><span class="best">0.4381</span></td><td>0.7234</td>
             <td>15.50</td><td>0.8515</td><td>0.3973</td>
           </tr>
           <tr class="ours">
-            <td class="left-align"><strong>NOVA-GS (Ours)</strong></td>
-            <td>20.97</td><td>0.7904</td><td class="best">0.2467</td>
-            <td class="best">15.54</td><td class="second">0.4088</td><td class="best">0.6136</td>
-            <td class="best">23.49</td><td class="best">0.8978</td><td class="best">0.3325</td>
+            <td class="method-col">&#10022; NOVA-GS (Ours)</td>
+            <td><span class="third">20.97</span></td><td>0.7904</td><td><span class="best">0.2467</span></td>
+            <td><span class="best">15.54</span></td><td><span class="second">0.4088</span></td><td><span class="best">0.6136</span></td>
+            <td><span class="best">23.49</span></td><td><span class="best">0.8978</span></td><td><span class="best">0.3325</span></td>
           </tr>
         </tbody>
       </table>
     </div>
-    <p style="font-size:13px; color:var(--text-muted); margin-top:10px;">
-      † uses ground-truth images for luminance / pose alignment.<br>
-      <span class="best">Bold</span> marks best performance. <span class="second">Underline</span> marks second best.
+    <p style="font-size:13px; color:var(--text-muted); margin-top:14px; font-weight: 500;">
+      &#8224; uses ground-truth images for luminance / pose alignment. &nbsp;&nbsp;
+      <span class="best" style="margin-left: 10px;">&#9632; Best</span> &nbsp;
+      <span class="second">&#9632; 2nd</span> &nbsp;
+      <span class="third">&#9632; 3rd</span>
     </p>
   </div>
 </section>
 
 <footer>
   <div class="container">
-    <p>NOVA-GS — Indian Institute of Technology Madras — 2025</p>
+    <p>NOVA-GS &mdash; Indian Institute of Technology Madras &mdash; 2025</p>
   </div>
 </footer>
 
 <script>
-  // Setup scene data matching original paths
-  const scenes = [
-    { label: "Still3 (LLNeRF)", dark: "images/still3_dark.png",    bright: "images/still3_ours.png" },
-    { label: "Chair (MVTV)",    dark: "images/chairraw_dark.png",  bright: "images/chairraw_ours.png" }
-  ];
+  // Setup logic for all sliders independently
+  const sliders = document.querySelectorAll('.slider-container');
 
-  const tabContainer = document.getElementById('sceneTabs');
-  const beforeImg    = document.getElementById('cs-before-img');
-  const afterImg     = document.getElementById('cs-after-img');
-  const sliderInput  = document.getElementById('slider-input');
-  const sliderLine   = document.getElementById('slider-line');
+  sliders.forEach(container => {
+    const beforeImg   = container.querySelector('.before-img');
+    const sliderInput = container.querySelector('.slider-input');
+    const sliderLine  = container.querySelector('.slider-line');
 
-  // Function to switch scenes
-  function loadScene(idx) {
-    // Update tabs
-    const tabs = document.querySelectorAll('.scene-tab');
-    tabs.forEach((t, i) => {
-      if (i === idx) t.classList.add('active');
-      else t.classList.remove('active');
+    // Function to apply slider position using standard clip-path based on input percentage
+    function updateSlider(percent) {
+      beforeImg.style.clipPath = `polygon(0 0, ${percent}% 0, ${percent}% 100%, 0 100%)`;
+      sliderLine.style.left = `${percent}%`;
+    }
+
+    // Bind the native input event which reliably fires on both touch and mouse drag
+    sliderInput.addEventListener('input', function(e) {
+      updateSlider(e.target.value);
     });
-    
-    // Update image sources
-    beforeImg.src = scenes[idx].dark;
-    afterImg.src  = scenes[idx].bright;
-    
-    // Reset slider to middle
-    sliderInput.value = 50;
+
+    // Initialize
     updateSlider(50);
-  }
-
-  // Create buttons for each scene
-  scenes.forEach((sc, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'scene-tab';
-    if(i === 0) btn.classList.add('active');
-    btn.textContent = sc.label;
-    btn.onclick = () => loadScene(i);
-    tabContainer.appendChild(btn);
   });
-
-  // Function to apply slider position using standard clip-path based on input percentage
-  function updateSlider(percent) {
-    // The before image is clipped, revealing the after image beneath it
-    beforeImg.style.clipPath = `polygon(0 0, ${percent}% 0, ${percent}% 100%, 0 100%)`;
-    sliderLine.style.left = `${percent}%`;
-  }
-
-  // Bind the native input event which reliably fires on both touch and mouse drag
-  sliderInput.addEventListener('input', function(e) {
-    updateSlider(e.target.value);
-  });
-
-  // Initialize first scene
-  loadScene(0);
 </script>
 </body>
 </html>
