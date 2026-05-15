@@ -308,7 +308,6 @@
 <!-- HERO -->
 <header>
   <div class="container">
-    <div class="venue-badge">IIT Madras · 2025</div>
     <h1>NOVA-GS: <em>Noise-Aware</em> View-Consistent Gaussian Splatting for Low-Light Novel View Synthesis</h1>
     <p class="hero-sub">A unified framework that reconstructs and renders 3D scenes directly from extreme low-light images — no SfM, no clean references needed.</p>
 
@@ -323,7 +322,7 @@
     <div class="btn-row">
       <a href="#" class="btn btn-primary">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        Paper (arXiv)
+        Paper
       </a>
       <a href="#" class="btn btn-outline" style="pointer-events: none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
@@ -352,22 +351,18 @@
     <h2>What makes NOVA-GS different</h2>
     <div class="contrib-grid">
       <div class="contrib-card">
-        <div class="contrib-icon">🌑</div>
         <h3>SfM-Free Initialization</h3>
         <p>Leverages VGGT feed-forward geometry estimation directly on degraded low-light inputs. No COLMAP, no well-lit references required.</p>
       </div>
       <div class="contrib-card">
-        <div class="contrib-icon">🔬</div>
         <h3>Targeted Blind-Spot Denoising</h3>
         <p>Laplacian-guided masking focuses denoising effort on high-frequency, noise-prone regions via a Deep Attention-ResUNet.</p>
       </div>
       <div class="contrib-card">
-        <div class="contrib-icon">🌐</div>
         <h3>Cross-View Consistency</h3>
         <p>Depth-guided reprojection with confidence-aware photometric loss enforces global geometric coherence across all input views.</p>
       </div>
       <div class="contrib-card">
-        <div class="contrib-icon">✦</div>
         <h3>Noise-Guided SH Regularization</h3>
         <p>Maps 2D noise estimates to 3D Gaussians, penalizing higher-order spherical harmonics in noisy regions to eliminate floaters.</p>
       </div>
@@ -429,8 +424,8 @@
       <!-- Second Scene Slider -->
       <div class="slider-wrapper">
         <div class="slider-container">
-          <img src="images/chairraw_ours.jpg" class="slider-img" alt="NOVA-GS output" onerror="this.onerror=null; this.src='https://placehold.co/900x500/e2e8f0/64748b?text=NOVA-GS+Output';">
-          <img src="images/chairraw_dark.jpg" class="slider-img before-img" alt="Dark input" onerror="this.onerror=null; this.src='https://placehold.co/900x500/1e293b/94a3b8?text=Low-Light+Input';">
+          <img src="images/chairraw_ours.png" class="slider-img" alt="NOVA-GS output" onerror="this.onerror=null; this.src='https://placehold.co/900x500/e2e8f0/64748b?text=NOVA-GS+Output';">
+          <img src="images/chairraw_dark.png" class="slider-img before-img" alt="Dark input" onerror="this.onerror=null; this.src='https://placehold.co/900x500/1e293b/94a3b8?text=Low-Light+Input';">
           <div class="slider-line">
             <div class="slider-btn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -533,11 +528,6 @@
   </div>
 </section>
 
-<footer>
-  <div class="container">
-    <p>NOVA-GS &mdash; Indian Institute of Technology Madras &mdash; 2025</p>
-  </div>
-</footer>
 
 <script>
   // Setup logic for all sliders independently
